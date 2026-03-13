@@ -143,7 +143,7 @@ Authorization: Bearer PUT_TOKEN_HERE
 
 ---
 
-### GET `/task/my-tasks` — Get My Tasks
+### GET `/tasks/my-tasks` — Get My Tasks
 
 > Requires Authorization header
 
@@ -164,7 +164,7 @@ Authorization: Bearer PUT_TOKEN_HERE
 
 ---
 
-### PUT `/task/:id` — Update Task
+### PUT `/tasks/:id` — Update Task
 
 > Requires Authorization header
 
@@ -188,7 +188,7 @@ Authorization: Bearer PUT_TOKEN_HERE
 
 ---
 
-### DELETE `/task/:id` — Delete Task
+### DELETE `/tasks/:id` — Delete Task
 
 > Requires Authorization header
 
@@ -202,7 +202,7 @@ Authorization: Bearer PUT_TOKEN_HERE
 
 ---
 
-### GET `/users/:id/task` — Get Tasks by User ID
+### GET `/users/:id/tasks` — Get Tasks by User ID
 
 **Response `200 OK`**
 
