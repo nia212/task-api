@@ -14,14 +14,9 @@ Live demo:
 
 ## Tech Stack
 
-| Layer | Technology |
-| ----- | ---------- |
-| Frontend | React |
-| Frontend | Tailwind CSS |
-| Backend | Node.js |
-| Backend | Express |
-| Database | MySQL |
-| Authentication | JWT |
+- Frontend: React, Tailwind
+- Backend: Node.js, Express, JWT
+- Database: MySQL
 
 ## Installation & Run (Detailed)
 
@@ -64,7 +59,6 @@ npm run dev
 Frontend default URL:
 
 - `http://localhost:5173`
-
 
 ## Database Setup (MySQL)
 
