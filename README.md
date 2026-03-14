@@ -1,92 +1,184 @@
-# Task Manager API
+# Task Manager App
 
-RESTful API for managing daily tasks built with Node.js and Express. Supports user authentication, full CRUD operations on tasks, and a one-to-many relationship between users and tasks.
+A fullstack task management app with JWT authentication.
 
----
+Users can:
+
+- register and login
+- create, edit, delete their tasks
+- change task status (`pending`, `in-progress`, `done`)
+
+Live demo:
+
+- https://task-api-gray.vercel.app/
 
 ## Tech Stack
 
-| Layer     | Technology |
-| --------- | ---------- |
-| Runtime   | Node.js    |
-| Framework | Express v5 |
-| Database  | MySQL      |
-| Auth      | JWT        |
+| Layer | Technology |
+| ----- | ---------- |
+| Frontend | React |
+| Frontend | Tailwind CSS |
+| Backend | Node.js |
+| Backend | Express |
+| Database | MySQL |
+| Authentication | JWT |
 
----
+## Installation & Run (Detailed)
 
-## Installation & Running
-
----
-
-## Database Setup
-
-`task_api.sql` file is included in the root of the project. Run it using your MySQL client:
-
-**MySQL CLI:**
-
-```bash
-mysql -u root -p < database.sql
-```
-
-**MySQL Workbench / phpMyAdmin:**
-Import `database.sql` and execute the file. This will create the `task_api` database
-
-### Steps
-
-**1. Clone the repository**
+## 1) Clone repository
 
 ```bash
 git clone https://github.com/nia212/task-api.git
 cd task-api
 ```
 
-**2. Install dependencies**
+## 2) Setup backend
 
 ```bash
-npm init -y
-npm install express mysql2 dotenv bcrypt jsonwebtoken
+cd backend
+npm install
 ```
 
-**3. Create environment file**
+Create `.env` in `backend/` (copy from `.env.example`):
 
-Create `.env` file in the root directory
-
-**4. Start the development server**
+Run backend:
 
 ```bash
 npm run dev
 ```
 
-The server will run on `http://localhost:3001`
+Backend default URL:
 
----
+- `http://localhost:3001`
 
-### Authentication
+## 3) Setup frontend
 
-Protected routes require a Bearer token in the `Authorization` header:
+Open a new terminal:
 
+```bash
+cd frontend
+npm install
+npm run dev
 ```
-Authorization: Bearer PUT_TOKEN_HERE
+
+Frontend default URL:
+
+- `http://localhost:5173`
+
+
+## Database Setup (MySQL)
+
+### Using MySQL Workbench
+
+1. Open **MySQL Workbench** and connect to your local server.
+2. Create a new schema (example: `task_db`):
+
+```sql
+CREATE DATABASE task_db;
 ```
 
----
+3. Run:
 
-## Request & Response Examples
+```sql
+USE task_db;
+```
 
-### POST `/users` — Register User
+4. Run this SQL command in a new SQL tab (same as your current setup):
 
-**Request**
+```sql
+CREATE TABLE `users` (
+  `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `name` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `created_at` datetime(6) NOT NULL DEFAULT current_timestamp(6)
+);
+
+show tables;
+
+CREATE TABLE `task` (
+  `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `title` varchar(255) NOT NULL,
+  `description` varchar(255) NOT NULL,
+  `status` varchar(255) NOT NULL,
+  `user_id` int(255) NOT NULL,
+  `created_at` datetime(6) NOT NULL DEFAULT current_timestamp(6),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+```
+
+5. Verify tables were created:
+
+```sql
+SHOW TABLES;
+DESCRIBE users;
+DESCRIBE task;
+```
+
+6. Update backend env to match Workbench connection:
+
+```env
+MYSQLHOST=localhost
+MYSQLUSER=root
+MYSQLPASSWORD=your_mysql_password
+MYSQLDATABASE=task_manager
+MYSQLPORT=3306
+JWT_SECRET=your_jwt_secret
+```
+
+7. Restart backend after editing `.env`:
+
+```bash
+cd backend
+npm run dev
+```
+
+## Authentication
+
+Protected routes require bearer token:
+
+```http
+Authorization: Bearer <your_jwt_token>
+```
+
+## API Endpoints Documentation
+
+### User Endpoints
+
+- `POST /users` - Register user
+- `POST /users/login` - Login user
+- `GET /users` - Get all users
+- `GET /users/:id` - Get user by ID
+- `PUT /users/:id` - Update user
+- `DELETE /users/:id` - Delete user
+- `GET /users/:id/tasks` - Get all tasks by user ID
+
+### Task Endpoints
+
+- `POST /tasks` - Create task (auth)
+- `GET /tasks` - Get all tasks
+- `GET /tasks/my-tasks` - Get logged-in user tasks (auth)
+- `GET /tasks/:id` - Get task by ID
+- `PUT /tasks/:id` - Update task (auth + ownership)
+- `DELETE /tasks/:id` - Delete task (auth + ownership)
+
+## Example Request / Response
+
+### 1) Register
+
+`POST /users`
+
+Request:
 
 ```json
 {
-  "name": "Karina Young",
-  "email": "k@gmail.com",
-  "password": "xxxxxx"
+  "name": "Nia",
+  "email": "nia@example.com",
+  "password": "secret123"
 }
 ```
 
-**Response `200 OK`**
+Response `200`:
 
 ```json
 {
@@ -95,44 +187,49 @@ Authorization: Bearer PUT_TOKEN_HERE
 }
 ```
 
----
+### 2) Login
 
-### POST `/users/login` — Login
+`POST /users/login`
 
-**Request**
-
-```json
-{
-  "email": "k@gmail.com",
-  "password": "xxxxxx"
-}
-```
-
-**Response `200 OK`**
+Request:
 
 ```json
 {
-  "token": "eyxxxxxxxxxxxxxxxx..."
+  "email": "nia@example.com",
+  "password": "secret123"
 }
 ```
 
----
+Response `200`:
 
-### POST `/tasks` — Create Task
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
 
-> Requires Authorization header
+### 3) Create Task (auth)
 
-**Request**
+`POST /tasks`
+
+Headers:
+
+```http
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+Request:
 
 ```json
 {
   "title": "Finish report",
-  "description": "Complete the Q1 report",
+  "description": "Complete Q1 report",
   "status": "pending"
 }
 ```
 
-**Response `200 OK`**
+Response `200`:
 
 ```json
 {
@@ -141,44 +238,40 @@ Authorization: Bearer PUT_TOKEN_HERE
 }
 ```
 
----
+### 4) Get My Tasks (auth)
 
-### GET `/tasks/my-tasks` — Get My Tasks
+`GET /tasks/my-tasks`
 
-> Requires Authorization header
-
-**Response `200 OK`**
+Response `200`:
 
 ```json
 [
   {
     "id": 1,
     "title": "Finish report",
-    "description": "Complete the Q1 report",
+    "description": "Complete Q1 report",
     "status": "pending",
     "user_id": 1,
-    "created_at": "2026-03-11T10:00:00.000Z"
+    "created_at": "2026-03-14T10:00:00.000Z"
   }
 ]
 ```
 
----
+### 5) Update Task (auth)
 
-### PUT `/tasks/:id` — Update Task
+`PUT /tasks/:id`
 
-> Requires Authorization header
-
-**Request**
+Request:
 
 ```json
 {
-  "title": "Finish report",
-  "description": "Complete the Q1 report",
+  "title": "Finish report updated",
+  "description": "Complete and send Q1 report",
   "status": "in-progress"
 }
 ```
 
-**Response `200 OK`**
+Response `200`:
 
 ```json
 {
@@ -186,13 +279,11 @@ Authorization: Bearer PUT_TOKEN_HERE
 }
 ```
 
----
+### 6) Delete Task (auth)
 
-### DELETE `/tasks/:id` — Delete Task
+`DELETE /tasks/:id`
 
-> Requires Authorization header
-
-**Response `200 OK`**
+Response `200`:
 
 ```json
 {
@@ -200,37 +291,17 @@ Authorization: Bearer PUT_TOKEN_HERE
 }
 ```
 
----
+## Common Error Responses
 
-### GET `/users/:id/tasks` — Get Tasks by User ID
+| Status | Meaning                                                     |
+| ------ | ----------------------------------------------------------- |
+| 400    | Missing or invalid input                                    |
+| 401    | Missing/invalid token or invalid credentials                |
+| 404    | Resource not found or not authorized for task update/delete |
+| 409    | Duplicate email                                             |
+| 500    | Internal server error                                       |
 
-**Response `200 OK`**
-
-```json
-[
-  {
-    "id": 5,
-    "title": "Finish report",
-    "description": "Complete the Q1 report",
-    "status": "pending",
-    "user_id": 1,
-    "created_at": "2026-03-11T10:00:00.000Z"
-  }
-]
-```
-
----
-
-### Error Responses
-
-| Status | Meaning                                 |
-| ------ | --------------------------------------- |
-| 400    | Bad request — missing or invalid input  |
-| 401    | Unauthorized — invalid or missing token |
-| 404    | Not found — resource does not exist     |
-| 500    | Internal server error                   |
-
-**Example `400`**
+Example `400`:
 
 ```json
 {
